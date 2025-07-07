@@ -35,7 +35,7 @@ Neon Tetris is a modern implementation of the classic Tetris game, built using J
 ### Steps to Install
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/neon-tetris.git
+   git clone https://github.com/Mir-Yuchi/neon-tetris.git
    cd neon-tetris
    ```
 
