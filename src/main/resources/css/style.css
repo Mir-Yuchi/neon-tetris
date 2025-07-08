@@ -34,3 +34,16 @@
     -fx-border-radius: 5;
     -fx-alignment: center;
 }
+
+/* Button hover effects */
+.button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Title text styling */
+.title-label {
+    -fx-font-family: "Arial Black", "Arial";
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
