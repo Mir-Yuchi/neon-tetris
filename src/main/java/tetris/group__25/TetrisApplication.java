@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -22,40 +23,57 @@ import java.util.List;
 public class TetrisApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
+        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(700);
+
         Rectangle background = new Rectangle();
         background.setFill(Color.BLACK);
 
-        // Game board UI
+        // Game board UI with improved styling
         BorderPane borderPane = new BorderPane();
         borderPane.setPadding(new Insets(20));
+        borderPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
 
         Pane boardPane = new Pane();
-        boardPane.setStyle("-fx-background-color: transparent;");
+        boardPane.setStyle("-fx-background-color: rgba(20, 20, 40, 0.8); -fx-border-color: #00FFFF; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
 
+        // Enhanced side panels
         VBox holdArea = new VBox(10);
         Label holdLabel = new Label("HOLD");
+        holdLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #00FFFF; -fx-effect: dropshadow(gaussian, #00FFFF, 8, 0.6, 0, 0);");
         Pane holdPane = new Pane();
         holdPane.setPrefSize(120, 120);
-        holdPane.setStyle("-fx-background-color: transparent;");
+        holdPane.setStyle("-fx-background-color: rgba(40, 40, 80, 0.9); -fx-border-color: #FF00FF; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
         holdArea.getChildren().addAll(holdLabel, holdPane);
         holdArea.setAlignment(Pos.CENTER);
 
         VBox nextArea = new VBox(10);
         Label nextLabel = new Label("NEXT");
+        nextLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #00FFFF; -fx-effect: dropshadow(gaussian, #00FFFF, 8, 0.6, 0, 0);");
         Pane nextPane = new Pane();
-        nextPane.setPrefSize(120, 120);
-        nextPane.setStyle("-fx-background-color: transparent;");
+        nextPane.setPrefSize(120, 360);
+        nextPane.setStyle("-fx-background-color: rgba(40, 40, 80, 0.9); -fx-border-color: #FF00FF; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
         nextArea.getChildren().addAll(nextLabel, nextPane);
         nextArea.setAlignment(Pos.CENTER);
 
-        HBox statsArea = new HBox(30);
+        // Compact stats area
+        HBox statsArea = new HBox(15);
+        statsArea.setAlignment(Pos.CENTER);
+        statsArea.setPadding(new Insets(10));
+        statsArea.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-border-color: #00FFFF; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
+
         Label scoreLabel = new Label("Score: 0");
         Label levelLabel = new Label("Level: 0");
         Label linesLabel = new Label("Lines: 0");
         Label highScoreLabel = new Label("High Score: 0");
+
+        String compactStatsStyle = "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFFFFF; -fx-background-color: rgba(0, 100, 150, 0.3); -fx-padding: 8 12; -fx-border-color: #00FFFF; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;";
+        scoreLabel.setStyle(compactStatsStyle);
+        levelLabel.setStyle(compactStatsStyle);
+        linesLabel.setStyle(compactStatsStyle);
+        highScoreLabel.setStyle(compactStatsStyle);
+
         statsArea.getChildren().addAll(scoreLabel, levelLabel, linesLabel, highScoreLabel);
-        statsArea.setAlignment(Pos.CENTER);
-        statsArea.setStyle("-fx-background-color: transparent;");
 
         borderPane.setCenter(boardPane);
         borderPane.setLeft(holdArea);
@@ -66,7 +84,7 @@ public class TetrisApplication extends Application {
         background.widthProperty().bind(rootStack.widthProperty());
         background.heightProperty().bind(rootStack.heightProperty());
 
-        Scene scene = new Scene(rootStack, 800, 600);
+        Scene scene = new Scene(rootStack, 900, 700);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
         // Initialize game engine and renderer
@@ -74,63 +92,80 @@ public class TetrisApplication extends Application {
                 scoreLabel, levelLabel, linesLabel, highScoreLabel);
         GameEngine engine = new GameEngine(scene, renderer);
 
-        // Create menu background
+        // Enhanced menu background with animation
         Rectangle menuBackground = new Rectangle();
         menuBackground.widthProperty().bind(rootStack.widthProperty());
         menuBackground.heightProperty().bind(rootStack.heightProperty());
         LinearGradient menuGradient = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.rgb(25, 25, 50)),
-                new Stop(0.5, Color.rgb(50, 25, 75)),
-                new Stop(1, Color.rgb(25, 50, 100)));
+                new Stop(0, Color.rgb(15, 15, 35)),
+                new Stop(0.3, Color.rgb(35, 15, 55)),
+                new Stop(0.7, Color.rgb(55, 35, 75)),
+                new Stop(1, Color.rgb(25, 45, 95)));
         menuBackground.setFill(menuGradient);
 
-        // Title label
+        // Improved title with better sizing
         Label titleLabel = new Label("NEON TETRIS");
         titleLabel.setStyle(
-                "-fx-font-size: 48px;" +
+                "-fx-font-size: 42px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: linear-gradient(to right, #00FFFF, #FF00FF, #FFFF00);" +
-                        "-fx-effect: dropshadow(gaussian, #00FFFF, 20, 0.8, 0, 0);"
+                        "-fx-effect: dropshadow(gaussian, #00FFFF, 25, 0.9, 0, 0);" +
+                        "-fx-padding: 20;"
         );
+        titleLabel.setMaxWidth(Double.MAX_VALUE);
+        titleLabel.setAlignment(Pos.CENTER);
 
-        // Main Menu overlay
-        VBox menuBox = new VBox(25);
+        // Enhanced subtitle
+        Label subtitleLabel = new Label("The Ultimate Neon Experience");
+        subtitleLabel.setStyle(
+                "-fx-font-size: 16px;" +
+                        "-fx-font-style: italic;" +
+                        "-fx-text-fill: #AAAAFF;" +
+                        "-fx-effect: dropshadow(gaussian, #AAAAFF, 10, 0.6, 0, 0);"
+        );
+        subtitleLabel.setAlignment(Pos.CENTER);
+
+        // Main Menu with better layout
+        VBox menuBox = new VBox(20);
         menuBox.setAlignment(Pos.CENTER);
+        menuBox.setMaxWidth(350);
         menuBox.setStyle(
-                "-fx-background-color: rgba(0, 0, 0, 0.8);" +
-                        "-fx-padding: 40;" +
+                "-fx-background-color: rgba(0, 0, 0, 0.85);" +
+                        "-fx-padding: 35;" +
                         "-fx-border-color: linear-gradient(to right, #00FFFF, #FF00FF);" +
                         "-fx-border-width: 3;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 25, 0.7, 0, 0);"
+                        "-fx-border-radius: 20;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.7), 30, 0.8, 0, 0);"
         );
 
         String btnStyle =
-                "-fx-font-size: 24px;" +
+                "-fx-font-size: 20px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: white;" +
-                        "-fx-background-color: linear-gradient(to bottom, rgba(0, 255, 255, 0.3), rgba(255, 0, 255, 0.3));" +
-                        "-fx-padding: 15 30;" +
+                        "-fx-background-color: linear-gradient(to bottom, rgba(0, 255, 255, 0.4), rgba(255, 0, 255, 0.4));" +
+                        "-fx-padding: 12 25;" +
                         "-fx-border-color: #00FFFF;" +
                         "-fx-border-width: 2;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.5), 10, 0.5, 0, 0);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 12, 0.6, 0, 0);" +
                         "-fx-cursor: hand;";
 
         String btnHoverStyle =
-                "-fx-font-size: 24px;" +
+                "-fx-font-size: 20px;" +
                         "-fx-font-weight: bold;" +
                         "-fx-text-fill: white;" +
-                        "-fx-background-color: linear-gradient(to bottom, rgba(0, 255, 255, 0.6), rgba(255, 0, 255, 0.6));" +
-                        "-fx-padding: 15 30;" +
+                        "-fx-background-color: linear-gradient(to bottom, rgba(0, 255, 255, 0.7), rgba(255, 0, 255, 0.7));" +
+                        "-fx-padding: 12 25;" +
                         "-fx-border-color: #FFFF00;" +
                         "-fx-border-width: 2;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.8), 15, 0.7, 0, 0);" +
-                        "-fx-cursor: hand;";
+                        "-fx-border-radius: 12;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.9), 18, 0.8, 0, 0);" +
+                        "-fx-cursor: hand;" +
+                        "-fx-scale-x: 1.05;" +
+                        "-fx-scale-y: 1.05;";
 
         StackPane menuContainer = new StackPane(menuBackground);
 
@@ -141,13 +176,13 @@ public class TetrisApplication extends Application {
             }
         });
 
-        for (String text : List.of("Start Game", "Scores", "Instructions", "Quit")) {
+        for (String text : List.of("Start Game", "High Scores", "Instructions", "Quit")) {
             Button b = new Button(text);
             b.setStyle(btnStyle);
-            b.setPrefWidth(200);
-            b.setPrefHeight(50);
+            b.setPrefWidth(280);
+            b.setPrefHeight(55);
 
-            // Add hover effects
+            // Enhanced hover effects
             b.setOnMouseEntered(e -> b.setStyle(btnHoverStyle));
             b.setOnMouseExited(e -> b.setStyle(btnStyle));
 
@@ -158,51 +193,128 @@ public class TetrisApplication extends Application {
                         engine.start();
                     }
                     case "Quit" -> primaryStage.close();
-                    case "Scores" -> {
-                        Label hs = new Label("High Score: " + engine.getHighScore());
-                        hs.setStyle(
-                                "-fx-font-size: 32px;" +
+                    case "High Scores" -> {
+                        VBox scoreBox = new VBox(15);
+                        scoreBox.setAlignment(Pos.CENTER);
+                        scoreBox.setPrefWidth(300);
+
+                        Label scoreTitle = new Label("HIGH SCORES");
+                        scoreTitle.setStyle(
+                                "-fx-font-size: 24px;" +
                                         "-fx-font-weight: bold;" +
                                         "-fx-text-fill: #00FFFF;" +
-                                        "-fx-background-color: rgba(0, 0, 0, 0.9);" +
+                                        "-fx-effect: dropshadow(gaussian, #00FFFF, 12, 0.7, 0, 0);" +
+                                        "-fx-alignment: center;"
+                        );
+
+                        Label hs = new Label("Best Score: " + String.format("%,d", engine.getHighScore()));
+                        hs.setStyle(
+                                "-fx-font-size: 20px;" +
+                                        "-fx-font-weight: bold;" +
+                                        "-fx-text-fill: #FFFF00;" +
+                                        "-fx-effect: dropshadow(gaussian, #FFFF00, 10, 0.6, 0, 0);" +
+                                        "-fx-alignment: center;"
+                        );
+
+                        Label clickHint = new Label("Click anywhere to close");
+                        clickHint.setStyle(
+                                "-fx-font-size: 12px;" +
+                                        "-fx-text-fill: #AAAAAA;" +
+                                        "-fx-font-style: italic;" +
+                                        "-fx-alignment: center;"
+                        );
+
+                        scoreBox.getChildren().addAll(scoreTitle, hs, clickHint);
+                        scoreBox.setStyle(
+                                "-fx-background-color: rgba(0, 0, 0, 0.95);" +
                                         "-fx-padding: 30;" +
                                         "-fx-border-color: #00FFFF;" +
-                                        "-fx-border-width: 3;" +
+                                        "-fx-border-width: 2;" +
                                         "-fx-border-radius: 15;" +
                                         "-fx-background-radius: 15;" +
-                                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.8), 20, 0.7, 0, 0);"
+                                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.8), 20, 0.8, 0, 0);" +
+                                        "-fx-alignment: center;"
                         );
-                        StackPane popup = new StackPane(hs);
+
+                        StackPane popup = new StackPane(scoreBox);
                         popup.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);");
                         rootStack.getChildren().add(popup);
                         popup.setOnMouseClicked(ev -> rootStack.getChildren().remove(popup));
                     }
                     case "Instructions" -> {
-                        Label inst = new Label(
-                                "CONTROLS:\n\n" +
-                                        "← / → : Move Left/Right\n" +
-                                        "↑ : Rotate Piece\n" +
-                                        "↓ : Soft Drop\n" +
-                                        "SPACE : Hard Drop\n" +
-                                        "C : Hold Piece\n" +
-                                        "P : Pause/Resume\n" +
-                                        "M : Back to Menu (when paused)\n\n" +
-                                        "Click anywhere to close"
-                        );
-                        inst.setStyle(
-                                "-fx-font-size: 18px;" +
+                        VBox instBox = new VBox(12);
+                        instBox.setAlignment(Pos.CENTER);
+                        instBox.setPrefWidth(400);
+
+                        Label instTitle = new Label("GAME CONTROLS");
+                        instTitle.setStyle(
+                                "-fx-font-size: 22px;" +
                                         "-fx-font-weight: bold;" +
                                         "-fx-text-fill: #00FFFF;" +
-                                        "-fx-background-color: rgba(0, 0, 0, 0.9);" +
+                                        "-fx-effect: dropshadow(gaussian, #00FFFF, 10, 0.6, 0, 0);" +
+                                        "-fx-alignment: center;"
+                        );
+
+                        GridPane controlsGrid = new GridPane();
+                        controlsGrid.setAlignment(Pos.CENTER);
+                        controlsGrid.setHgap(15);
+                        controlsGrid.setVgap(8);
+
+                        String[][] controls = {
+                                {"← →", "Move Left/Right"},
+                                {"↑", "Rotate Piece"},
+                                {"↓", "Soft Drop"},
+                                {"SPACE", "Hard Drop"},
+                                {"C", "Hold Piece"},
+                                {"P", "Pause/Resume"},
+                                {"M", "Menu (when paused)"},
+                                {"R", "Restart (game over)"}
+                        };
+
+                        for (int i = 0; i < controls.length; i++) {
+                            Label key = new Label(controls[i][0]);
+                            key.setStyle(
+                                    "-fx-font-size: 14px;" +
+                                            "-fx-font-weight: bold;" +
+                                            "-fx-text-fill: #FFFF00;" +
+                                            "-fx-background-color: rgba(255, 255, 0, 0.1);" +
+                                            "-fx-padding: 4 8;" +
+                                            "-fx-border-color: #FFFF00;" +
+                                            "-fx-border-width: 1;" +
+                                            "-fx-border-radius: 3;" +
+                                            "-fx-background-radius: 3;"
+                            );
+
+                            Label description = new Label(controls[i][1]);
+                            description.setStyle(
+                                    "-fx-font-size: 14px;" +
+                                            "-fx-text-fill: #FFFFFF;"
+                            );
+
+                            controlsGrid.add(key, 0, i);
+                            controlsGrid.add(description, 1, i);
+                        }
+
+                        Label clickHint = new Label("Click anywhere to close");
+                        clickHint.setStyle(
+                                "-fx-font-size: 11px;" +
+                                        "-fx-text-fill: #AAAAAA;" +
+                                        "-fx-font-style: italic;" +
+                                        "-fx-alignment: center;"
+                        );
+
+                        instBox.getChildren().addAll(instTitle, controlsGrid, clickHint);
+                        instBox.setStyle(
+                                "-fx-background-color: rgba(0, 0, 0, 0.95);" +
                                         "-fx-padding: 25;" +
                                         "-fx-border-color: #00FFFF;" +
                                         "-fx-border-width: 2;" +
-                                        "-fx-border-radius: 10;" +
-                                        "-fx-background-radius: 10;" +
-                                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 15, 0.6, 0, 0);" +
-                                        "-fx-alignment: center;"
+                                        "-fx-border-radius: 12;" +
+                                        "-fx-background-radius: 12;" +
+                                        "-fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.7), 18, 0.7, 0, 0);"
                         );
-                        StackPane popup = new StackPane(inst);
+
+                        StackPane popup = new StackPane(instBox);
                         popup.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8);");
                         rootStack.getChildren().add(popup);
                         popup.setOnMouseClicked(ev -> rootStack.getChildren().remove(popup));
@@ -212,9 +324,9 @@ public class TetrisApplication extends Application {
             menuBox.getChildren().add(b);
         }
 
-        VBox fullMenuBox = new VBox(30);
+        VBox fullMenuBox = new VBox(25);
         fullMenuBox.setAlignment(Pos.CENTER);
-        fullMenuBox.getChildren().addAll(titleLabel, menuBox);
+        fullMenuBox.getChildren().addAll(titleLabel, subtitleLabel, menuBox);
 
         menuContainer.getChildren().add(fullMenuBox);
         rootStack.getChildren().add(menuContainer);

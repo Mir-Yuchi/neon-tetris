@@ -24,7 +24,9 @@ public class Board {
     private final TetrominoFactory factory = new TetrominoFactory();
     private boolean canHold = true;
     private int lastLinesCleared;
+    private List<Integer> lastClearedLines = new ArrayList<>();
     private boolean gameOver = false;
+    private boolean pendingLineClear = false;
 
     public Board() {
         // Initialize the board with empty cells (0)
@@ -73,13 +75,17 @@ public class Board {
         /*
          * Move the current piece down if possible or lock it if it can't move down anymore.
          */
+        if (pendingLineClear) return; // Don't move during line clear animation
+
         if (currentPiece != null && canMove(currentPiece.getX(), currentPiece.getY() + 1, currentPiece.getShape())) {
             currentPiece.setY(currentPiece.getY() + 1);
         } else if (currentPiece != null) {
             lockPiece();
-            clearLines();
-            spawnNewPiece();
-            canHold = true;
+            checkForLineClear();
+            if (!pendingLineClear) {
+                spawnNewPiece();
+                canHold = true;
+            }
         }
     }
 
@@ -107,13 +113,17 @@ public class Board {
         /*
          * Move the current piece down to the lowest possible position and lock it.
          */
+        if (pendingLineClear) return; // Don't drop during line clear animation
+
         if (currentPiece == null) return;
         int[] ghostPos = getGhostPosition();
         currentPiece.setY(ghostPos[1]);
         lockPiece();
-        clearLines();
-        spawnNewPiece();
-        canHold = true;
+        checkForLineClear();
+        if (!pendingLineClear) {
+            spawnNewPiece();
+            canHold = true;
+        }
     }
 
     public void hold() {
@@ -192,10 +202,7 @@ public class Board {
         }
     }
 
-    private void clearLines() {
-        /*
-         * Check for full rows and clear them, shifting the rows above down.
-         */
+    private void checkForLineClear() {
         List<Integer> fullRows = new ArrayList<>();
         for (int y = 0; y < 20; y++) {
             boolean full = true;
@@ -209,8 +216,20 @@ public class Board {
                 fullRows.add(y);
             }
         }
+
+        lastClearedLines = fullRows;
         lastLinesCleared = fullRows.size();
-        for (int row : fullRows) {
+
+        if (!fullRows.isEmpty()) {
+            pendingLineClear = true;
+        }
+    }
+
+    public void completeLinesClearing() {
+        if (!pendingLineClear) return;
+
+        // Actually clear the lines
+        for (int row : lastClearedLines) {
             for (int y = row; y > 0; y--) {
                 System.arraycopy(grid[y - 1], 0, grid[y], 0, 10);
             }
@@ -218,17 +237,18 @@ public class Board {
                 grid[0][x] = 0;
             }
         }
+
+        pendingLineClear = false;
+        spawnNewPiece();
+        canHold = true;
     }
 
-    public int[] getGhostPosition() {
-        /*
-         * Calculate the ghost position of the current piece, which is the lowest position it can fall to without locking.
-         */
-        int ghostY = currentPiece.getY();
-        while (canMove(currentPiece.getX(), ghostY + 1, currentPiece.getShape())) {
-            ghostY++;
-        }
-        return new int[]{currentPiece.getX(), ghostY};
+    public List<Integer> getLastClearedLines() {
+        return new ArrayList<>(lastClearedLines);
+    }
+
+    public boolean isPendingLineClear() {
+        return pendingLineClear;
     }
 
     public int[][] getGrid() {
@@ -287,5 +307,23 @@ public class Board {
          * Get the number of lines cleared by the last piece that was locked.
          */
         return lastLinesCleared;
+    }
+
+    public int[] getGhostPosition() {
+        /*
+         * Calculate the ghost position (where the piece would land if dropped).
+         */
+        if (currentPiece == null) return new int[]{0, 0};
+
+        int ghostX = currentPiece.getX();
+        int ghostY = currentPiece.getY();
+        int[][] shape = currentPiece.getShape();
+
+        // Find the lowest position where the piece can be placed
+        while (canMove(ghostX, ghostY + 1, shape)) {
+            ghostY++;
+        }
+
+        return new int[]{ghostX, ghostY};
     }
 }

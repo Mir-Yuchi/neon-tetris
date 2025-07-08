@@ -8,6 +8,8 @@ import tetris.group__25.render.Renderer;
 import tetris.group__25.score.HighScoreManager;
 import tetris.group__25.score.ScoreSystem;
 
+import java.util.List;
+
 public class GameEngine {
     private final Scene scene;
     private final Renderer renderer;
@@ -28,6 +30,10 @@ public class GameEngine {
         this.highScoreManager = new HighScoreManager();
         this.state = new RunningState(this);
 
+        // Set up renderer callbacks
+        renderer.setOnRestartGame(this::restartGame);
+        renderer.setOnBackToMenu(this::backToMenu);
+
         scene.setOnKeyPressed(this::handleInput);
         scene.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.DOWN) {
@@ -45,7 +51,19 @@ public class GameEngine {
     }
 
     public void start() {
+        board.reset();
+        scoreSystem.reset();
+        renderer.hideGameOverOverlay();
+        renderer.hidePauseOverlay();
+        setState(new RunningState(this));
         timer.start();
+    }
+
+    public void restartGame() {
+        board.reset();
+        scoreSystem.reset();
+        renderer.hideGameOverOverlay();
+        setState(new RunningState(this));
     }
 
     public void setOnBackToMenu(Runnable callback) {
@@ -54,6 +72,8 @@ public class GameEngine {
 
     public void backToMenu() {
         timer.stop();
+        renderer.hideGameOverOverlay();
+        renderer.hidePauseOverlay();
         if (onBackToMenu != null) {
             onBackToMenu.run();
         }
@@ -81,6 +101,8 @@ public class GameEngine {
 
         @Override
         public void handleInput(KeyEvent e) {
+            if (renderer.isAnimating()) return; // Block input during animation
+
             switch (e.getCode()) {
                 case LEFT -> board.moveLeft();
                 case RIGHT -> board.moveRight();
@@ -101,6 +123,8 @@ public class GameEngine {
 
         @Override
         public void update(long now) {
+            if (renderer.isAnimating()) return; // Don't update during animation
+
             if (lastUpdate == 0) lastUpdate = now;
             if (isSoftDropping) {
                 double interval = 0.05;
@@ -130,9 +154,13 @@ public class GameEngine {
             if (board.isGameOver()) {
                 highScoreManager.setHighScore(scoreSystem.getScore());
                 engine.setState(new GameOverState(engine));
-            } else {
-                int cleared = board.getLastLinesCleared();
-                if (cleared > 0) scoreSystem.addClear(cleared);
+            } else if (board.isPendingLineClear()) {
+                List<Integer> clearedLines = board.getLastClearedLines();
+                renderer.animateLineClearing(clearedLines, () -> {
+                    board.completeLinesClearing();
+                    int cleared = board.getLastLinesCleared();
+                    if (cleared > 0) scoreSystem.addClear(cleared);
+                });
             }
         }
     }
@@ -171,14 +199,15 @@ public class GameEngine {
 
         GameOverState(GameEngine engine) {
             this.engine = engine;
+            renderer.showGameOverOverlay();
         }
 
         @Override
         public void handleInput(KeyEvent e) {
             if (e.getCode() == KeyCode.R) {
-                board.reset();
-                scoreSystem.reset();
-                engine.setState(new RunningState(engine));
+                engine.restartGame();
+            } else if (e.getCode() == KeyCode.M) {
+                engine.backToMenu();
             }
         }
 
