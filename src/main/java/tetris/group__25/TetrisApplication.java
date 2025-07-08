@@ -40,7 +40,7 @@ public class TetrisApplication extends Application {
         // Enhanced side panels
         VBox holdArea = new VBox(10);
         Label holdLabel = new Label("HOLD");
-        holdLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #00FFFF; -fx-effect: dropshadow(gaussian, #00FFFF, 8, 0.6, 0, 0);");
+        holdLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;");
         Pane holdPane = new Pane();
         holdPane.setPrefSize(120, 120);
         holdPane.setStyle("-fx-background-color: rgba(40, 40, 80, 0.9); -fx-border-color: #FF00FF; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
@@ -49,7 +49,7 @@ public class TetrisApplication extends Application {
 
         VBox nextArea = new VBox(10);
         Label nextLabel = new Label("NEXT");
-        nextLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #00FFFF; -fx-effect: dropshadow(gaussian, #00FFFF, 8, 0.6, 0, 0);");
+        nextLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;");
         Pane nextPane = new Pane();
         nextPane.setPrefSize(120, 360);
         nextPane.setStyle("-fx-background-color: rgba(40, 40, 80, 0.9); -fx-border-color: #FF00FF; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
@@ -104,19 +104,18 @@ public class TetrisApplication extends Application {
         menuBackground.setFill(menuGradient);
 
         // Improved title with better sizing
-        Label titleLabel = new Label("NEON TETRIS");
+        Label titleLabel = new Label("TETRIS");
         titleLabel.setStyle(
                 "-fx-font-size: 42px;" +
                         "-fx-font-weight: bold;" +
-                        "-fx-text-fill: linear-gradient(to right, #00FFFF, #FF00FF, #FFFF00);" +
-                        "-fx-effect: dropshadow(gaussian, #00FFFF, 25, 0.9, 0, 0);" +
+                        "-fx-text-fill: #FFFFFF;" +
                         "-fx-padding: 20;"
         );
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         titleLabel.setAlignment(Pos.CENTER);
 
         // Enhanced subtitle
-        Label subtitleLabel = new Label("The Ultimate Neon Experience");
+        Label subtitleLabel = new Label("The Ultimate Experience");
         subtitleLabel.setStyle(
                 "-fx-font-size: 16px;" +
                         "-fx-font-style: italic;" +
@@ -198,12 +197,11 @@ public class TetrisApplication extends Application {
                         scoreBox.setAlignment(Pos.CENTER);
                         scoreBox.setPrefWidth(300);
 
-                        Label scoreTitle = new Label("HIGH SCORES");
+                        Label scoreTitle = new Label("High Scores");
                         scoreTitle.setStyle(
                                 "-fx-font-size: 24px;" +
                                         "-fx-font-weight: bold;" +
-                                        "-fx-text-fill: #00FFFF;" +
-                                        "-fx-effect: dropshadow(gaussian, #00FFFF, 12, 0.7, 0, 0);" +
+                                        "-fx-text-fill: #FFFFFF;" +
                                         "-fx-alignment: center;"
                         );
 
@@ -211,8 +209,7 @@ public class TetrisApplication extends Application {
                         hs.setStyle(
                                 "-fx-font-size: 20px;" +
                                         "-fx-font-weight: bold;" +
-                                        "-fx-text-fill: #FFFF00;" +
-                                        "-fx-effect: dropshadow(gaussian, #FFFF00, 10, 0.6, 0, 0);" +
+                                        "-fx-text-fill: #FFFFFF;" +
                                         "-fx-alignment: center;"
                         );
 
@@ -250,8 +247,7 @@ public class TetrisApplication extends Application {
                         instTitle.setStyle(
                                 "-fx-font-size: 22px;" +
                                         "-fx-font-weight: bold;" +
-                                        "-fx-text-fill: #00FFFF;" +
-                                        "-fx-effect: dropshadow(gaussian, #00FFFF, 10, 0.6, 0, 0);" +
+                                        "-fx-text-fill: #FFFFFF;" +
                                         "-fx-alignment: center;"
                         );
 
@@ -331,7 +327,7 @@ public class TetrisApplication extends Application {
         menuContainer.getChildren().add(fullMenuBox);
         rootStack.getChildren().add(menuContainer);
 
-        primaryStage.setTitle("Neon Tetris");
+        primaryStage.setTitle("Tetris");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

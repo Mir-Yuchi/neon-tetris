@@ -61,6 +61,8 @@
     -fx-font-size: 16px;
     -fx-font-weight: normal;
     -fx-alignment: center;
+    -fx-effect: null;
+    -fx-text-alignment: center;
 }
 
 .button {
