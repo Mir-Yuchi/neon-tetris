@@ -18,6 +18,7 @@ public class GameEngine {
     private final AnimationTimer timer;
     private boolean isSoftDropping = false;
     private long lastSoftDrop = 0;
+    private Runnable onBackToMenu;
 
     public GameEngine(Scene scene, Renderer renderer) {
         this.scene = scene;
@@ -45,6 +46,17 @@ public class GameEngine {
 
     public void start() {
         timer.start();
+    }
+
+    public void setOnBackToMenu(Runnable callback) {
+        this.onBackToMenu = callback;
+    }
+
+    public void backToMenu() {
+        timer.stop();
+        if (onBackToMenu != null) {
+            onBackToMenu.run();
+        }
     }
 
     private void handleInput(KeyEvent e) {
@@ -138,6 +150,9 @@ public class GameEngine {
             if (e.getCode() == KeyCode.P) {
                 renderer.hidePauseOverlay();
                 engine.setState(new RunningState(engine));
+            } else if (e.getCode() == KeyCode.M) {
+                renderer.hidePauseOverlay();
+                engine.backToMenu();
             }
         }
 

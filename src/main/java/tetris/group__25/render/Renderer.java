@@ -83,7 +83,7 @@ public class Renderer {
     }
 
     private void initializePauseLabel() {
-        pauseLabel = new Label("Paused\nPress P to Resume");
+        pauseLabel = new Label("Paused\nPress P to Resume\nPress M for Menu");
         pauseLabel.setStyle(gameOverLabel.getStyle());
         pauseLabel.setAlignment(Pos.CENTER);
         pauseLabel.setVisible(false);

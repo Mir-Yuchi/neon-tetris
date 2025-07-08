@@ -90,6 +90,13 @@ public class TetrisApplication extends Application {
                         "-fx-border-width: 2;" +
                         "-fx-border-radius: 5;";
 
+        // Set up back to menu callback
+        engine.setOnBackToMenu(() -> {
+            if (!rootStack.getChildren().contains(menuBox)) {
+                rootStack.getChildren().add(menuBox);
+            }
+        });
+
         for (String text : List.of("Start Game", "Scores", "Instructions", "Quit")) {
             Button b = new Button(text);
             b.setStyle(btnStyle);
