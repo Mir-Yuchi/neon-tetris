@@ -8,54 +8,29 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-import tetris.group__25.engine.Board;
-import tetris.group__25.tetromino.Tetromino;
 import javafx.scene.control.Label;
 import javafx.geometry.Pos;
+import tetris.group__25.engine.Board;
+import tetris.group__25.tetromino.Tetromino;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles rendering of the Tetris game UI components, including the game board,
- * hold piece, next pieces, stats, and game over message.
- */
 public class Renderer {
-    private static final int ROWS = 20;
-    private static final int COLS = 10;
-    private final Pane boardPane;
-    private final Pane holdPane;
-    private final Pane nextPane;
+    private static final int ROWS = 20, COLS = 10;
+    private final Pane boardPane, holdPane, nextPane;
     private final Rectangle background;
     private final StackPane rootStack;
-    private final Label scoreLabel;
-    private final Label levelLabel;
-    private final Label linesLabel;
-    private final Label highScoreLabel;
-    private Label gameOverLabel;
+    private final Label scoreLabel, levelLabel, linesLabel, highScoreLabel;
+    private Label gameOverLabel, pauseLabel;
     private final Rectangle[][] gridRectangles;
-    private final List<Rectangle> temporaryPieceRectangles;
-    private double cellSize;
-    private double offsetX;
-    private double offsetY;
+    private final List<Rectangle> tempRects = new ArrayList<>();
+    private double cellSize, offsetX, offsetY;
 
-    /**
-     * Constructs a Renderer with the specified JavaFX components.
-     *
-     * @param boardPane      Pane for the main game board
-     * @param holdPane       Pane for the hold piece
-     * @param nextPane       Pane for the next pieces
-     * @param background     Rectangle for the background gradient
-     * @param rootStack      Root StackPane for overlaying game over label
-     * @param scoreLabel     Label for displaying the score
-     * @param levelLabel     Label for displaying the level
-     * @param linesLabel     Label for displaying the number of lines cleared
-     * @param highScoreLabel Label for displaying the high score
-     */
-    public Renderer(Pane boardPane, Pane holdPane, Pane nextPane, Rectangle background, StackPane rootStack,
-                    Label scoreLabel, Label levelLabel, Label linesLabel, Label highScoreLabel) {
-        /*
-            * Initializes the Renderer with the provided JavaFX components.
-         */
+    public Renderer(Pane boardPane, Pane holdPane, Pane nextPane,
+                    Rectangle background, StackPane rootStack,
+                    Label scoreLabel, Label levelLabel,
+                    Label linesLabel, Label highScoreLabel) {
         this.boardPane = boardPane;
         this.holdPane = holdPane;
         this.nextPane = nextPane;
@@ -66,34 +41,29 @@ public class Renderer {
         this.linesLabel = linesLabel;
         this.highScoreLabel = highScoreLabel;
         this.gridRectangles = new Rectangle[ROWS][COLS];
-        this.temporaryPieceRectangles = new ArrayList<>();
+
         initializeGrid();
         initializeGameOverLabel();
-        boardPane.widthProperty().addListener((observable, oldValue, newValue) -> updateGridLayout());
-        boardPane.heightProperty().addListener((observable, oldValue, newValue) -> updateGridLayout());
+        initializePauseLabel();
+
+        boardPane.widthProperty().addListener((o, v1, v2) -> updateGridLayout());
+        boardPane.heightProperty().addListener((o, v1, v2) -> updateGridLayout());
     }
 
-    /**
-     * Initializes the game board grid with rectangles for each cell.
-     */
     private void initializeGrid() {
-        for (int y = 0; y < ROWS; y++) {
+        for (int y = 0; y < ROWS; y++)
             for (int x = 0; x < COLS; x++) {
-                Rectangle rect = new Rectangle();
-                rect.setFill(Color.BLACK);
-                rect.setStroke(Color.gray(0.2));
-                rect.setStrokeWidth(0.5);
-                rect.setEffect(new DropShadow(3, Color.gray(0.8)));
-                boardPane.getChildren().add(rect);
-                gridRectangles[y][x] = rect;
+                Rectangle r = new Rectangle();
+                r.setFill(Color.BLACK);
+                r.setStroke(Color.gray(0.2));
+                r.setStrokeWidth(0.5);
+                r.setEffect(new DropShadow(3, Color.gray(0.8)));
+                boardPane.getChildren().add(r);
+                gridRectangles[y][x] = r;
             }
-        }
         updateGridLayout();
     }
 
-    /**
-     * Initializes the game over label, centered on the game area.
-     */
     private void initializeGameOverLabel() {
         gameOverLabel = new Label("Game Over!\nPress R to Restart");
         gameOverLabel.setStyle(
@@ -112,210 +82,142 @@ public class Renderer {
         StackPane.setAlignment(gameOverLabel, Pos.CENTER);
     }
 
-    /**
-     * Updates the grid layout based on the current pane size, ensuring dynamic resizing.
-     */
-    private void updateGridLayout() {
-        double boardWidth = boardPane.getWidth();
-        double boardHeight = boardPane.getHeight();
-        if (boardWidth <= 0 || boardHeight <= 0) return;
-        double cellWidth = boardWidth / COLS;
-        double cellHeight = boardHeight / ROWS;
-        cellSize = Math.min(cellWidth, cellHeight);
-        offsetX = (boardWidth - cellSize * COLS) / 2;
-        offsetY = (boardHeight - cellSize * ROWS) / 2;
-        for (int y = 0; y < ROWS; y++) {
-            for (int x = 0; x < COLS; x++) {
-                Rectangle rect = gridRectangles[y][x];
-                rect.setX(offsetX + x * cellSize);
-                rect.setY(offsetY + y * cellSize);
-                rect.setWidth(cellSize - 1);
-                rect.setHeight(cellSize - 1);
-            }
-        }
-        double piecePaneSize = 4 * cellSize;
-        holdPane.setPrefSize(piecePaneSize, piecePaneSize);
-        double nextPaneHeight = (piecePaneSize + 10) * 3; // For 3 pieces
-        nextPane.setPrefHeight(nextPaneHeight);
+    private void initializePauseLabel() {
+        pauseLabel = new Label("Paused\nPress P to Resume");
+        pauseLabel.setStyle(gameOverLabel.getStyle());
+        pauseLabel.setAlignment(Pos.CENTER);
+        pauseLabel.setVisible(false);
+        rootStack.getChildren().add(pauseLabel);
+        StackPane.setAlignment(pauseLabel, Pos.CENTER);
     }
 
-    /**
-     * Renders the game state, including the board, pieces, and stats.
-     *
-     * @param board     The game board
-     * @param score     Current score
-     * @param level     Current level
-     * @param lines     Total lines cleared
-     * @param highScore High score
-     */
+    public void showPauseOverlay() { pauseLabel.setVisible(true); }
+    public void hidePauseOverlay() { pauseLabel.setVisible(false); }
+
+    private void updateGridLayout() {
+        double w = boardPane.getWidth(), h = boardPane.getHeight();
+        if (w <= 0 || h <= 0) return;
+        cellSize = Math.min(w / COLS, h / ROWS);
+        offsetX = (w - COLS * cellSize) / 2;
+        offsetY = (h - ROWS * cellSize) / 2;
+
+        for (int y = 0; y < ROWS; y++)
+            for (int x = 0; x < COLS; x++) {
+                Rectangle r = gridRectangles[y][x];
+                r.setX(offsetX + x * cellSize);
+                r.setY(offsetY + y * cellSize);
+                r.setWidth(cellSize - 1);
+                r.setHeight(cellSize - 1);
+            }
+
+        double size4 = 4 * cellSize;
+        holdPane.setPrefSize(size4, size4);
+        nextPane.setPrefHeight((size4 + 10) * 3);
+    }
+
     public void render(Board board, int score, int level, int lines, int highScore) {
-        if (board == null) return;
         gameOverLabel.setVisible(board.isGameOver());
         updateBackground(level);
         updateGrid(board.getGrid());
-        clearTemporaryPieces();
-        Tetromino currentPiece = board.getCurrentPiece();
-        if (currentPiece != null) {
-            renderPiece(currentPiece, false);
-            int[] ghostPos = board.getGhostPosition();
-            Tetromino ghost = currentPiece.clone();
-            ghost.setY(ghostPos[1]);
+        boardPane.getChildren().removeAll(tempRects);
+        tempRects.clear();
+
+        Tetromino cur = board.getCurrentPiece();
+        if (cur != null) {
+            renderPiece(cur, false);
+            Tetromino ghost = cur.clone();
+            ghost.setY(board.getGhostPosition()[1]);
             renderPiece(ghost, true);
         }
-        renderHoldPiece(board.getHoldPiece());
+        renderPieceInPane(board.getHoldPiece(), holdPane);
         renderNextPieces(board.getNextPieces(3));
         updateStats(score, level, lines, highScore);
     }
 
-    /**
-     * Updates the background with a gradient based on the current level.
-     *
-     * @param level The current game level
-     */
     private void updateBackground(int level) {
-        Stop[] stops = new Stop[] {
+        Stop[] stops = {
                 new Stop(0, Color.hsb(level * 10 % 360, 0.8, 0.8)),
                 new Stop(1, Color.hsb((level * 10 + 180) % 360, 0.8, 0.8))
         };
-        LinearGradient gradient = new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, stops);
-        background.setFill(gradient);
+        background.setFill(new LinearGradient(0, 0, 1, 1, true,
+                CycleMethod.NO_CYCLE, stops));
     }
 
-    /**
-     * Updates the game board grid based on the current grid state.
-     *
-     * @param grid The game board grid array
-     */
     private void updateGrid(int[][] grid) {
-        if (grid == null) return;
-        for (int y = 0; y < ROWS; y++) {
+        for (int y = 0; y < ROWS; y++)
             for (int x = 0; x < COLS; x++) {
                 int code = grid[y][x];
-                Color color = code == 0 ? Color.BLACK : Tetromino.getColorFromCode(code);
-                gridRectangles[y][x].setFill(color);
+                gridRectangles[y][x].setFill(
+                        code == 0 ? Color.BLACK : Tetromino.getColorFromCode(code)
+                );
             }
-        }
     }
 
-    /**
-     * Clears temporary rectangles used for rendering pieces.
-     */
-    private void clearTemporaryPieces() {
-        boardPane.getChildren().removeAll(temporaryPieceRectangles);
-        temporaryPieceRectangles.clear();
-    }
-
-    /**
-     * Renders a tetromino piece on the game board.
-     *
-     * @param piece   The tetromino to render
-     * @param isGhost Whether the piece is a ghost piece (semi-transparent)
-     */
-    private void renderPiece(Tetromino piece, boolean isGhost) {
-        if (piece == null) return;
-        int[][] shape = piece.getShape();
-        if (shape == null) return;
-        Color color = piece.getColor();
-        if (isGhost) {
-            color = color.deriveColor(0, 1, 1, 0.3);
-        }
-        for (int r = 0; r < shape.length; r++) {
-            for (int c = 0; c < shape[r].length; c++) {
-                if (shape[r][c] != 0) {
-                    int gridX = piece.getX() + c;
-                    int gridY = piece.getY() + r;
-                    if (gridY >= 0 && gridY < ROWS && gridX >= 0 && gridX < COLS) {
-                        double rectX = offsetX + gridX * cellSize;
-                        double rectY = offsetY + gridY * cellSize;
-                        Rectangle rect = new Rectangle(rectX, rectY, cellSize - 1, cellSize - 1);
-                        rect.setFill(color);
-                        rect.setEffect(new DropShadow(3, Color.gray(0.8)));
-                        boardPane.getChildren().add(rect);
-                        temporaryPieceRectangles.add(rect);
-                    }
+    private void renderPiece(Tetromino t, boolean ghost) {
+        if (t == null) return;
+        Color c = t.getColor();
+        if (ghost) c = c.deriveColor(0,1,1,0.3);
+        int[][] shape = t.getShape();
+        for (int r = 0; r < shape.length; r++)
+            for (int c2 = 0; c2 < shape[r].length; c2++)
+                if (shape[r][c2] != 0) {
+                    double x = offsetX + (t.getX()+c2)*cellSize;
+                    double y = offsetY + (t.getY()+r)*cellSize;
+                    Rectangle rect = new Rectangle(x, y, cellSize-1, cellSize-1);
+                    rect.setFill(c);
+                    rect.setEffect(new DropShadow(3, Color.gray(0.8)));
+                    boardPane.getChildren().add(rect);
+                    tempRects.add(rect);
                 }
-            }
-        }
     }
 
-    /**
-     * Renders the hold piece in the hold pane.
-     *
-     * @param hold The hold tetromino
-     */
-    private void renderHoldPiece(Tetromino hold) {
-        renderPieceInPane(hold, holdPane);
-    }
-
-    /**
-     * Renders the next pieces in the next pane.
-     *
-     * @param nextPieces List of next tetrominos to display
-     */
-    private void renderNextPieces(List<Tetromino> nextPieces) {
+    private void renderNextPieces(List<Tetromino> list) {
         nextPane.getChildren().clear();
-        if (nextPieces == null) return;
-        double startY = 0;
-        for (Tetromino next : nextPieces) {
-            if (next == null) continue;
-            int[][] shape = next.getShape();
-            if (shape == null) continue;
-            Color color = next.getColor();
-            double pieceHeight = shape.length * cellSize;
-            double startX = (nextPane.getWidth() - shape[0].length * cellSize) / 2;
-            for (int r = 0; r < shape.length; r++) {
-                for (int c = 0; c < shape[r].length; c++) {
-                    if (shape[r][c] != 0) {
-                        Rectangle rect = new Rectangle(startX + c * cellSize, startY + r * cellSize, cellSize - 1, cellSize - 1);
-                        rect.setFill(color);
+        double yOff=0;
+        for (Tetromino t : list) {
+            if (t == null) continue;
+            int[][] shape = t.getShape();
+            double startX = (nextPane.getWidth() - shape[0].length*cellSize)/2;
+            for (int r=0;r<shape.length;r++)
+                for (int c2=0;c2<shape[r].length;c2++)
+                    if (shape[r][c2]!=0) {
+                        Rectangle rect = new Rectangle(
+                                startX + c2*cellSize,
+                                yOff + r*cellSize,
+                                cellSize-1, cellSize-1
+                        );
+                        rect.setFill(t.getColor());
                         rect.setEffect(new DropShadow(3, Color.gray(0.8)));
                         nextPane.getChildren().add(rect);
                     }
-                }
-            }
-            startY += pieceHeight + 10;
+            yOff += shape.length*cellSize + 10;
         }
     }
 
-    /**
-     * Renders a tetromino in a specified pane (e.g., hold or next).
-     *
-     * @param tetromino The tetromino to render
-     * @param pane      The pane in which to render the tetromino
-     */
-    private void renderPieceInPane(Tetromino tetromino, Pane pane) {
-        pane.getChildren().clear();
-        if (tetromino != null) {
-            int[][] shape = tetromino.getShape();
-            if (shape == null) return;
-            Color color = tetromino.getColor();
-            double startX = (pane.getWidth() - shape[0].length * cellSize) / 2;
-            double startY = (pane.getHeight() - shape.length * cellSize) / 2;
-            for (int r = 0; r < shape.length; r++) {
-                for (int c = 0; c < shape[r].length; c++) {
-                    if (shape[r][c] != 0) {
-                        Rectangle rect = new Rectangle(startX + c * cellSize, startY + r * cellSize, cellSize - 1, cellSize - 1);
-                        rect.setFill(color);
-                        rect.setEffect(new DropShadow(3, Color.gray(0.8)));
-                        pane.getChildren().add(rect);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Updates the stat labels with the current game stats.
-     *
-     * @param score     Current score
-     * @param level     Current level
-     * @param lines     Total lines cleared
-     * @param highScore Current high score
-     */
     private void updateStats(int score, int level, int lines, int highScore) {
         scoreLabel.setText("Score: " + score);
         levelLabel.setText("Level: " + level);
         linesLabel.setText("Lines: " + lines);
         highScoreLabel.setText("High Score: " + highScore);
+    }
+
+    private void renderPieceInPane(Tetromino t, Pane pane) {
+        pane.getChildren().clear();
+        if (t == null) return;
+        int[][] shape = t.getShape();
+        double startX = (pane.getWidth() - shape[0].length*cellSize)/2;
+        double startY = (pane.getHeight() - shape.length*cellSize)/2;
+        for (int r=0;r<shape.length;r++)
+            for (int c2=0;c2<shape[r].length;c2++)
+                if (shape[r][c2]!=0) {
+                    Rectangle rect = new Rectangle(
+                            startX + c2*cellSize,
+                            startY + r*cellSize,
+                            cellSize-1, cellSize-1
+                    );
+                    rect.setFill(t.getColor());
+                    rect.setEffect(new DropShadow(3, Color.gray(0.8)));
+                    pane.getChildren().add(rect);
+                }
     }
 }

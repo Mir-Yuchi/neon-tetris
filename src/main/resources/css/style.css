@@ -10,7 +10,7 @@
 }
 
 .hold-grid, .next-grid {
-    -fx-background-color: rgba(20, 20, 20, 0.8);
+    -fx-background-color: rgba(20,20,20,0.8);
     -fx-padding: 10;
     -fx-border-color: #FF00FF;
     -fx-border-width: 2;
@@ -22,10 +22,15 @@
     -fx-font-size: 20px;
     -fx-effect: dropshadow(gaussian, #00FFFF, 15, 0.7, 0, 0);
 }
-#game-over-label {
-    -fx-font-size: 48px;
+
+/* Game Over and Menu/Pause buttons */
+#game-over-label, .menu-button {
+    -fx-font-size: 28px;
     -fx-text-fill: white;
-    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-color: rgba(0,0,0,0.7);
     -fx-padding: 20px;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
     -fx-alignment: center;
 }
